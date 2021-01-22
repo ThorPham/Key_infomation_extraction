@@ -13,6 +13,12 @@ from faker import Faker
 import random
 fake = Faker()
 
+pattern_date_text = ["Ngày: ","Ngày bán: ",'Thời gian : ','Ngày giờ : ','Giờ vào: ','']
+pattern_date = ["%m/%d/%Y - %H:%M:%S","%m-%d-%Y - %H:%M:%S","%m/%d/%Y","%m-%d-%Y","%m/%d/%Y - %H:%M",
+               "%m-%d-%Y - %H:%M"]
+def gen_date(fake):
+    return random.choice(pattern_date_text) + fake.date_time().strftime(random.choice(pattern_date))
+
 
 def gen_company(fake):
     company_prefix = ["NHÀ SÁCH","Mart","Siêu thị","Cửa hàng","SHOP","công ty","nhà ăn","quán ăn"]
