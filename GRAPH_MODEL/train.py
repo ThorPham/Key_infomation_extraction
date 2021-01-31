@@ -166,8 +166,9 @@ def load_gate_gcn_net(device, alphabet, checkpoint_path=None):
     net_params['hidden_dim'] = 512
     net_params['out_dim'] = 512
     net_params['n_classes'] = 5
-    net_params['dropout'] = 0.
-    net_params['L'] = 8
+    net_params['dropout'] = 0.1
+    net_params['in_feat_dropout'] = 0.1
+    net_params['L'] = 8#8
     net_params['readout'] = True
     net_params['graph_norm'] = True
     net_params['batch_norm'] = True
@@ -206,14 +207,14 @@ def main():
     
     parser.add_argument('--config', help="Please give a config.json file with training/model/data/param details")
     parser.add_argument('--batch_size', default=32, help="Please give a value for batch_size")
-    parser.add_argument('--train_dataset', default='/media/thorpham/PROJECT/OCR-challenge/preprocessing/data_train_processing/train', help="Please give a value for dataset name")
-    parser.add_argument('--test_dataset', default='/media/thorpham/PROJECT/OCR-challenge/preprocessing/data_train_processing/train', help="Please give a value for dataset name")
+    parser.add_argument('--train_dataset', default='/media/thorpham/PROJECT/OCR-challenge/preprocessing/data_for_submit/new_generate', help="Please give a value for dataset name")
+    parser.add_argument('--test_dataset', default='/media/thorpham/PROJECT/OCR-challenge/preprocessing/data_for_submit/ctpn_craft', help="Please give a value for dataset name")
     parser.add_argument('--split', default='\t', help="Please give a value for dataset name")
     parser.add_argument('--labels', default=['other', 'company', 'address', 'date', 'total'], help="Please give a value for dataset name")
     parser.add_argument('--alphabet', default=' "$(),-./0123456789:;ABCDEFGHIJKLMNOPQRSTUVWXYZ_ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚÝĂĐĨŨƠƯẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼẾỀỂỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪỬỮỰỲỴỶỸ', help="Please give a value for dataset name")
     parser.add_argument('--seed', default=0, help="Please give a value for seed")
     parser.add_argument('--init_lr', default=0.001, help="Please give a value for init_lr")
-    parser.add_argument('--epochs', default=1000, help="Please give a value for epochs")
+    parser.add_argument('--epochs', default=5, help="Please give a value for epochs")
     parser.add_argument('--key', default='test', help="Please give a value for epochs")
     parser.add_argument('--node_dropout', default=0., help="Please give a value for epochs")
     
@@ -229,8 +230,8 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = load_gate_gcn_net(device, args.alphabet)
 
-    train_dataset = SROIEDataset(data_dir=args.train_dataset, split=args.split, labels=args.labels, alphabet=args.alphabet, dropout=args.node_dropout)
-    test_dataset = SROIEDataset(data_dir=args.test_dataset, split=args.split, labels=args.labels, alphabet=args.alphabet)
+    train_dataset = MyDataset(data_dir=args.train_dataset, split=args.split, labels=args.labels, alphabet=args.alphabet, dropout=args.node_dropout)
+    test_dataset = MyDataset(data_dir=args.test_dataset, split=args.split, labels=args.labels, alphabet=args.alphabet)
 
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, collate_fn=train_dataset.collate)
     test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False, collate_fn=test_dataset.collate)

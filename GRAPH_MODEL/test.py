@@ -6,9 +6,10 @@ import numpy as np
 import dgl
 import cv2
 import pandas as pd
-from dataset import SROIEDataset
+from dataset import MyDataset
 from gated_gcn import GatedGCNNet
-
+from unidecode import unidecode
+from itertools import combinations
 def accuracy(scores, targets):
     S = targets.cpu().numpy()
     C = np.argmax( torch.nn.Softmax(dim=1)(scores).cpu().detach().numpy() , axis=1 )
@@ -45,7 +46,7 @@ def accuracy(scores, targets):
 
 def _text_encode(text):
         text_encode = []
-        for t in text.upper():   #             
+        for t in text.upper():   #   unidecode(           
             if t not in alphabet:
                 text_encode.append(alphabet.index(" "))
             else:
@@ -169,7 +170,7 @@ def load_gate_gcn_net(device, checkpoint_path):
     net_params['hidden_dim'] = 512
     net_params['out_dim'] = 512
     net_params['n_classes'] = 5
-    net_params['in_feat_dropout'] = 0.1
+    net_params['in_feat_dropout'] = 0.
     net_params['dropout'] = 0.0
     net_params['L'] = 8
     net_params['readout'] = True
@@ -191,11 +192,10 @@ def load_gate_gcn_net(device, checkpoint_path):
 
 node_labels = ['other', 'company', 'address', 'date', 'total']
 alphabet = ' "$(),-./0123456789:;ABCDEFGHIJKLMNOPQRSTUVWXYZ_ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚÝĂĐĨŨƠƯẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼẾỀỂỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪỬỮỰỲỴỶỸ'
-
 def main():
-    data_path = "/media/thorpham/PROJECT/OCR-challenge/preprocessing/OCR_rotated/"
-    image_path = "/media/thorpham/PROJECT/OCR-challenge/image_rotated/"
-    checkpoint_path = './checkpoints/test_newest.pkl'
+    data_path = "/media/thorpham/PROJECT/OCR-challenge/preprocessing/data_for_submit/private_test/OCR_PARSER/"
+    image_path = "/media/thorpham/PROJECT/OCR-challenge/preprocessing/data_for_submit/private_test/visualize/"
+    checkpoint_path = '/media/thorpham/PROJECT/OCR-challenge/preprocessing/graph_model/checkpoints/acc_0.9/test_newest.pkl'
     device = 'cuda'
     model = load_gate_gcn_net(device, checkpoint_path)
 
@@ -203,6 +203,7 @@ def main():
     annotation_list = os.listdir(data_path)
     data_frame = []
     for annotation_file in annotation_list:
+        print("="*50)
         if 'jpg' in annotation_file:
             continue
         print(annotation_file) 
@@ -230,22 +231,30 @@ def main():
             image = cv2.imread(image_file)
 
             batch_scores = batch_scores.cpu().softmax(1)
+            
             values, pred = batch_scores.max(1)
-
             length = pred.shape[0]
             results = {"company":[],"address":[],"date":[],"total":[]}
             save = []
+            points = []
+            for i in range(len(boxes)):
+                info = boxes[i]
+                box = np.array([[int(info[0]), int(info[1])], [int(info[2]), int(info[3])], [int(info[4]), int(info[5])], [int(info[6]), int(info[7])]])
+                xmin,ymin,xmax,ymax = int(info[0]), int(info[1]),int(info[4]), int(info[5])
+                x_c = (xmin+ xmax)//2
+                y_c = (ymin + ymax)//2
+                points.append([x_c,y_c])
             for i in range(length):
                 if pred[i] == batch_labels[i]:
                     if pred[i] == 0:
                         continue
 
                     msg = "{}".format(node_labels[pred[i]])
-                    color = (0, 255, 0)
+                    color = (0, 255, 255,0.6)
                 else:
                     # msg = "{}-{}".format(node_labels[pred[i]], node_labels[batch_labels[i]])
                     msg = "{}".format(node_labels[pred[i]])
-                    color = (0, 0, 255)
+                    color = (0, 255, 0,0.5)
 
                 info = boxes[i]
                 box = np.array([[int(info[0]), int(info[1])], [int(info[2]), int(info[3])], [int(info[4]), int(info[5])], [int(info[6]), int(info[7])]])
@@ -262,9 +271,14 @@ def main():
             # print(ocr)
             # if len(s)>2:
         #     s = original[i]
-        #     results[msg].append(s)
-                # cv2.polylines(image, [box], 1, color)
-                # cv2.putText(image, msg , (int(info[0]), int(info[1])), cv2.FONT_HERSHEY_SIMPLEX, 0.8, color, 1, cv2.LINE_AA)
+            # results[msg].append(s)
+                # print("-"*50)
+                print(s + " ||| ",msg)
+                
+                # cv2.circle(image,(x_c,y_c),3,(0,0,255))
+                cv2.polylines(image, [box], 3, (0,0,0))
+                cv2.fillPoly( image, [box], (255,0,255,0.9) )
+                cv2.putText(image, msg , (int(info[0]), int(info[1])-10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,0,0,0.5), 4, cv2.LINE_AA)
         # # print(results)
         # name_image = os.path.basename(image_file)
         # company =  " ".join([str(i.strip()) for i in results["company"]])
@@ -275,7 +289,13 @@ def main():
         # print(out)
         # data_frame.append([name_image,0.5,out.strip()])
     #     file_name = os.path.basename(image_file)
-        
+                # print(s,"\t")
+        points =  sorted(points, key= lambda k :[k[1],k[0]])
+        # comb = combinations(points, 2) 
+        for i in range(len(points)-1):
+            (x1,y1) = points[i]
+            (x2,y2) = points[i+1]
+            cv2.arrowedLine(image, (x1,y1),(x2,y2), (0,255,0,0.3), 2) 
     #     cv2.imshow("im",cv2.resize(image,(400,600)))
     #     cv2.waitKey(0)
     # cv2.destroyAllWindows()
@@ -285,9 +305,9 @@ def main():
     # df = pd.DataFrame(data_frame,columns=columns)
     # # print(df.head())
     # # print(len(df["img_id"].unique()))
-    # df.to_csv("results.csv",index=None,columns=columns)
-    #     # file_name = os.path.basename(image_file)
-        # cv2.imwrite('./visual_test/{}'.format(file_name), image)
+    # # df.to_csv("results.csv",index=None,columns=columns)
+        file_name = os.path.basename(image_file)
+        cv2.imwrite('./visual_test/{}'.format(file_name), image)
 
 if __name__ == '__main__':
     main()

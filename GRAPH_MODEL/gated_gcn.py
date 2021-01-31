@@ -8,7 +8,7 @@ import dgl
 import numpy as np
 
 
-from graph_norm import GraphNorm
+from GRAPH_MODEL.graph_norm import GraphNorm
 
 
 """
@@ -161,7 +161,7 @@ class GatedGCNNet(nn.Module):
         
         self.lstm = LSTM(input_size=hidden_dim, hidden_size=hidden_dim, num_layers=1, batch_first=True, bidirectional=True)
         self.MLP_layer = MLPReadout(hidden_dim, n_classes)
-        self.criterion = nn.CrossEntropyLoss(ignore_index=-100)
+        self.criterion = nn.CrossEntropyLoss(ignore_index=-100)#
 
     def lstm_text_embeding(self, text, text_length):
         packed_sequence = pack_padded_sequence(text, text_length.cpu(), batch_first=True, enforce_sorted=False)
@@ -260,8 +260,8 @@ if __name__ == '__main__':
     net_params['hidden_dim'] = 256
     net_params['out_dim'] = 256
     net_params['n_classes'] = 5
-    net_params['in_feat_dropout'] = 0.1
-    net_params['dropout'] = 0.1
+    net_params['in_feat_dropout'] = 0.
+    net_params['dropout'] = 0.
     net_params['L'] = 5
     net_params['readout'] = True
     net_params['graph_norm'] = True

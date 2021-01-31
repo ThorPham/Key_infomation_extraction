@@ -2,7 +2,7 @@ import time
 import os
 import pickle
 import random
-
+from unidecode import unidecode
 import numpy as np
 import dgl
 import torch
@@ -11,7 +11,7 @@ from torch.utils.data import Dataset, DataLoader
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-class SROIEDataset(Dataset):
+class MyDataset(Dataset):
 
     def __init__(self,
                  data_dir,
@@ -75,7 +75,7 @@ class SROIEDataset(Dataset):
 
     def _text_encode(self, text):
         text_encode = []
-        for t in text.upper():#
+        for t in text.upper() : #unidecode(text.upper()):#
             if t not in self.alphabet:
                 text_encode.append(self.alphabet.index(" "))
             else:
@@ -87,13 +87,15 @@ class SROIEDataset(Dataset):
         text_lengths = []
         boxes = []
         labels = []
-        with open(annotation_file, encoding='utf-8') as f:
+        with open(annotation_file, encoding='utf-8',errors='ignore') as f:
             lines = f.readlines()
             for line in lines:
                 splits = line.strip().split(self.split)
                
                 if len(splits) < 10:
                     continue
+                # if len(splits[8]) <2:
+                #     continue
                 text_encode = self._text_encode(splits[8])
 
                 text_lengths.append(text_encode.shape[0])
@@ -238,7 +240,7 @@ if __name__ == '__main__':
 
     split = '\t'
     labels = ['other', 'company', 'address', 'date', 'total']
-    dataset = SROIEDataset(data_dir=data_dir, split=split, labels=labels, alphabet=alphabet)
+    dataset = MyDataset(data_dir=data_dir, split=split, labels=labels, alphabet=alphabet)
 
 
     train_loader = DataLoader(dataset, batch_size=12, shuffle=True, collate_fn=dataset.collate)
