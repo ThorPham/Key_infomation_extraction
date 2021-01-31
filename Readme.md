@@ -13,7 +13,11 @@
 ## Visualize image predict
 * <img align="center" width="200" height="400" src="./images/2.jpg">
 * <img align="center" width="200" height="400" src="./images/1.jpg">
+## Pretrained model
+* Link driver : https://drive.google.com/file/d/1uWnrlJ1KGziv2q-ehY2ZuFh1L7ssxIf_/view?usp=sharing
 ## Reference
+* https://github.com/pbcquoc/vietocr
+* https://github.com/clovaai/CRAFT-pytorch
 * https://github.com/cyh1112/GraphNormalization
 * https://github.com/eragonruan/text-detection-ctpn
 * https://github.com/graphdeeplearning/benchmarking-gnns
