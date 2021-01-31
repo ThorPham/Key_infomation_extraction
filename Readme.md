@@ -11,8 +11,8 @@
 * Create data set format (x1,y1,...,x4,y4, ocr parser, label class.
 * Run GRAPH_MODEL train.py (set parameter in this file)
 ## Visualize image predict
-<img align="center" width="200" height="400" src="./images/2.jpg">
-<img align="center" width="200" height="400" src="./images/1.jpg">
+* <img align="center" width="200" height="400" src="./images/2.jpg">
+* <img align="center" width="200" height="400" src="./images/1.jpg">
 ## Reference
 * https://github.com/cyh1112/GraphNormalization
 * https://github.com/eragonruan/text-detection-ctpn
