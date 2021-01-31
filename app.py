@@ -80,64 +80,38 @@ def rectify_poly(img, poly):
         width_step += w
     return output_img
 
-path_image = "/home/thorpham/Downloads/z1992150214667_157026289e86eb457a50058f03f93671_iksx.jpg"
-image = preprocessing(path_image)
-image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-image_visualize = image.copy()
-
-prediction_result = get_prediction(
-        image=image,
-        craft_net=craft_net,
-        refine_net=refine_net,
-        text_threshold=0.7,
-        link_threshold=0.4,
-        low_text=0.4,
-        cuda=True,
-        long_size=1280
-    )
-regions=prediction_result["boxes"]
-data_graph = []
-for ind, region in enumerate(regions):
-    result = rectify_poly(image, region)
-    img_ocr = Image.fromarray(result)
-    s = detector.predict(img_ocr)
-    poly = np.array(region).astype(np.int32).reshape((-1))
-    if len(s)<2 :
-        continue
-    box = np.array(region,np.int32)
-    box = box.reshape((-1, 1, 2)) 
-    poly = np.array(region).astype(np.int32).reshape((-1))
-    cv2.polylines(image_visualize, [poly.reshape((-1, 1, 2))], True, color=(0, 0, 255), thickness=2)
-    strResult = '\t'.join([str(p) for p in poly]) +  "\t" + str(s) + "\t" + "other"
-    data_graph.append(strResult)
-
-
-pre = graph_model.predict(data_graph)
-for i in pre :
-    print(i)
-cv2.imshow("img",image_visualize)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# if __name__ == "__main__":
-#     path_image = "/media/thorpham/PROJECT/OCR-challenge/data_train/mcocr_public_train_test_shared_data/mcocr_train_data/train_images/mcocr_public_145013aaprl.jpg"
-#     image = preprocessing(path_image)
-#     img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-#     cv2.imshow("img",image)
-#     cv2.waitKey(0)
-#     cv2.destroyAllWindows()
+def main(path_image) :
+    image = preprocessing(path_image)
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    prediction_result = get_prediction(
+            image=image,
+            craft_net=craft_net,
+            refine_net=refine_net,
+            text_threshold=0.7,
+            link_threshold=0.4,
+            low_text=0.4,
+            cuda=True,
+            long_size=1280
+        )
+    regions=prediction_result["boxes"]
+    data_graph = []
+    for ind, region in enumerate(regions):
+        result = rectify_poly(image, region)
+        img_ocr = Image.fromarray(result)
+        s = detector.predict(img_ocr)
+        poly = np.array(region).astype(np.int32).reshape((-1))
+        if len(s)<2 :
+            continue
+        box = np.array(region,np.int32)
+        box = box.reshape((-1, 1, 2)) 
+        poly = np.array(region).astype(np.int32).reshape((-1))
+        # cv2.polylines(image_visualize, [poly.reshape((-1, 1, 2))], True, color=(0, 0, 255), thickness=2)
+        strResult = '\t'.join([str(p) for p in poly]) +  "\t" + str(s) + "\t" + "other"
+        data_graph.append(strResult)
+    pre = graph_model.predict(data_graph)
+    return pre
+    
+if __name__ == "__main__":
+    path_image = "/home/thorpham/Downloads/z1992150214667_157026289e86eb457a50058f03f93671_iksx.jpg"
+    results = main(path_image)
+    print(results)
