@@ -6,13 +6,6 @@
 # 1. Model architecture
 * Detail : https://docs.google.com/presentation/d/1Sjyvm1xb2yUkpsL-9l4SKmKkDRPRyiJlhM0eevhYRas/edit#slide=id.g906421739f_0_0
 * ![Structure](./images/u2net.png)
-* Dataset training.
-    * Link : https://drive.google.com/file/d/1CSYzyhpBcehqnKnIHq6zKrPfLV249in3/view?usp=sharing
-* Dataset include : 
-    * 180 images background (for augmentation)
-    * 8k images Not in-shop
-    * 5k images in-shop
-    * 20k images collection
 # 2. Training
 - Model : Unet^2 with loss BCE + IOU + SSIM 
 - Augmentation : Horizontal flip, replace background
