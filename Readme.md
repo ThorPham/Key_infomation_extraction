@@ -10,9 +10,9 @@
 ## Train model
 * Create data set format (x1,y1,...,x4,y4, ocr parser, label class.
 * Run GRAPH_MODEL train.py (set parameter in this file)
-## Visualize image predict
+<!-- ## Visualize image predict
 * <img align="center" width="200" height="400" src="./images/2.jpg">
-* <img align="center" width="200" height="400" src="./images/1.jpg">
+* <img align="center" width="200" height="400" src="./images/1.jpg"> -->
 ## Pretrained model
 * Link driver : https://drive.google.com/file/d/1uWnrlJ1KGziv2q-ehY2ZuFh1L7ssxIf_/view?usp=sharing
 ## Reference
